@@ -1,0 +1,29 @@
+---
+title: "Hvilke sammenhenger har vi mellom inntekt, kjønn og BMI?"
+format: revealjs
+editor: visual
+lang: no_nb
+csl: hvl_apa7_stil_bokmal_v1.csl
+bibliography: Data Science.bib
+---
+
+```{r}
+library(modelr)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(vtable)
+library(flextable)
+library(scales)
+library(tinytex)
+```
+
+
+```{r}
+heights <- modelr::heights
+```
+
+```{r}
+Sys.setlocale("LC_ALL", "Norwegian")
+```
+

@@ -35,6 +35,34 @@ heights <- modelr::heights
 - Hvordan kan mønstre i data underbygge diskusjonen hos @judge2004 om fysisk fremtoning og suksess i arbeidslivet?
 
 
+## Tabell fra Antonio
+
+```{r}
+ggplot(
+  data = heights %>%
+    filter(!is.na(income), !is.na(education), !is.na(sex)) %>%
+    group_by(sex, education) %>%
+    summarise(mean_income = mean(income), .groups = "drop"),
+  aes(x = education, y = mean_income, fill = sex)
+) +
+  geom_col(position = "dodge") +
+  scale_y_continuous(labels = label_comma()) +
+  labs(
+    x = "Utdanning",
+    y = "Gjennomsnittlig inntekt",
+    fill = "Kjønn",
+    title = "Gjennomsnittlig inntekt etter utdanning og kjønn"
+  ) +
+  theme(
+    axis.text = element_text(size = 15),
+    axis.title = element_text(size = 15),
+    plot.title = element_text(size = 16, face = "bold")
+  )
+
+```
+
+
+
 ## Datagrunnlag
 
 ```{r}

@@ -124,22 +124,55 @@ heights_bmi %>%
 ## BMI og inntekt
 
 ```{r}
-heights_bmi %>%
-  ggplot(aes(x = bmi, y = income, color = sex)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth(method = "lm", se = FALSE) +
-  scale_color_manual(values = c("#88C0D0", "#BF616A")) +
-  scale_y_continuous(labels = dollar_format(prefix = "", suffix = " USD")) +
+#| label: fig-bmi-inntekt-ryddig
+#| fig-cap: "BMI og inntekt – nedprøvd scatter og trend per kjønn (1.–99. persentil)."
+library(dplyr)
+library(ggplot2)
+library(scales)
+#| label: fig-bmi-inntekt-ryddig
+#| fig-cap: "BMI og inntekt
+#| fig-width: 10
+#| fig-height: 6
+
+
+# Bruk datasettet du allerede har laget
+base <- heights_bmi |>
+  rename(inntekt = income, kjonn = sex, BMI = bmi) |>
+  mutate(kjonn = forcats::fct_relevel(kjonn, "Menn", "Kvinner"))
+
+# Grenser for y-akse (1.–99. persentil, men behold hele datasettet til beregning)
+lims <- quantile(base$inntekt, c(.01, .99), na.rm = TRUE)
+
+# Nedprøv ~30 % av punktene for å unngå prikksalat
+set.seed(123)
+df_plot <- base |> dplyr::slice_sample(prop = 0.30)
+
+ggplot(df_plot, aes(BMI, inntekt, colour = kjonn)) +
+  geom_point(alpha = 0.10, size = 0.8) +                           # lette punkter
+  geom_smooth(data = base, method = "lm", se = FALSE, linewidth = 1.2) +  # trend på hele datasettet
+  coord_cartesian(ylim = lims) +
+  scale_y_continuous(
+    labels = label_dollar(prefix = "", suffix = " USD", big.mark = " "),
+    breaks = pretty_breaks(5)
+  ) +
+  scale_color_manual(values = c("Menn" = "#88C0D0", "Kvinner" = "#BF616A"), name = "Kjønn") +
   labs(
-    title = "Samanheng mellom BMI og inntekt",
+    title = "BMI og inntekt",
+    subtitle = "Nedprøvd til 30 % av observasjonene for lesbarhet – trend basert på hele datasettet",
     x = "BMI",
     y = "Inntekt (USD)"
   ) +
-  theme_minimal(base_size = 16)
+  theme_minimal(base_size = 16) +
+  theme(
+    legend.position = "top",
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank()
+  )
+
 ```
 
-- Det er en svak negativ trend mellom BMI og inntekt for begge kjønn.
-- Menn ligger generelt høyere i inntekt, spesielt ved lavere BMI.
+# Det er en svak negativ trend mellom BMI og inntekt for begge kjønn.
+# Menn ligger generelt høyere i inntekt, spesielt ved lavere BMI.
 
 ## Kjønnsforskjeller i inntekt fordelt på BMI-kvartil
 

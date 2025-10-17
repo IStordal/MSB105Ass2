@@ -125,32 +125,25 @@ heights_bmi %>%
 
 ```{r}
 #| label: fig-bmi-inntekt-ryddig
-#| fig-cap: "BMI og inntekt – nedprøvd scatter og trend per kjønn (1.–99. persentil)."
+#| fig-width: 10
+#| fig-height: 6
+#| echo: false
 library(dplyr)
 library(ggplot2)
 library(scales)
-#| label: fig-bmi-inntekt-ryddig
-#| fig-cap: "BMI og inntekt
-#| fig-width: 10
-#| fig-height: 6
 
-
-# Bruk datasettet du allerede har laget
 base <- heights_bmi |>
   rename(inntekt = income, kjonn = sex, BMI = bmi) |>
   mutate(kjonn = forcats::fct_relevel(kjonn, "Menn", "Kvinner"))
-
-# Grenser for y-akse (1.–99. persentil, men behold hele datasettet til beregning)
-lims <- quantile(base$inntekt, c(.01, .99), na.rm = TRUE)
 
 # Nedprøv ~30 % av punktene for å unngå prikksalat
 set.seed(123)
 df_plot <- base |> dplyr::slice_sample(prop = 0.30)
 
 ggplot(df_plot, aes(BMI, inntekt, colour = kjonn)) +
-  geom_point(alpha = 0.10, size = 0.8) +                           # lette punkter
-  geom_smooth(data = base, method = "lm", se = FALSE, linewidth = 1.2) +  # trend på hele datasettet
-  coord_cartesian(ylim = lims) +
+  geom_point(alpha = 0.25, size = 0.8) +
+  geom_smooth(data = base, method = "lm", se = FALSE, linewidth = 1.2) +
+  coord_cartesian(ylim = c(0, 200000)) +
   scale_y_continuous(
     labels = label_dollar(prefix = "", suffix = " USD", big.mark = " "),
     breaks = pretty_breaks(5)
@@ -158,7 +151,7 @@ ggplot(df_plot, aes(BMI, inntekt, colour = kjonn)) +
   scale_color_manual(values = c("Menn" = "#88C0D0", "Kvinner" = "#BF616A"), name = "Kjønn") +
   labs(
     title = "BMI og inntekt",
-    subtitle = "Nedprøvd til 30 % av observasjonene for lesbarhet – trend basert på hele datasettet",
+    subtitle = "Nedprøvd til 30 % av observasjonene for lesbarhet. Trend basert på hele datasettet",
     x = "BMI",
     y = "Inntekt (USD)"
   ) +

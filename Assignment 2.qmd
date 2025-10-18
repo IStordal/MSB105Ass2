@@ -22,18 +22,15 @@ library(tinytex)
 Sys.setlocale("LC_ALL", "Norwegian")
 ```
 
-
 ```{r}
 heights <- modelr::heights
 ```
 
-
 ## Problemstilling
 
-- Hva sier data fra modelr::heights om sammenhengen mellom inntekt, kjønn og BMI?
+-   Hva sier data fra modelr::heights om sammenhengen mellom inntekt, kjønn og BMI?
 
-- Hvordan kan mønstre i data underbygge diskusjonen hos @judge2004 om fysisk fremtoning og suksess i arbeidslivet?
-
+-   Hvordan kan mønstre i data underbygge diskusjonen hos @judge2004 om fysisk fremtoning og suksess i arbeidslivet?
 
 ## Tabell fra Antonio
 
@@ -61,8 +58,6 @@ ggplot(
 
 ```
 
-
-
 ## Datagrunnlag
 
 ```{r}
@@ -74,8 +69,8 @@ heights_bmi <- heights %>%
   filter(!is.na(income))
 ```
 
-- `height` og `weight` er gjeve i tommar og pund; faktor 703 konverterer til BMI i kg/m². Høgda er berre brukt for å rekne ut BMI.
-- Vi fjernar observasjonar utan registrert inntekt for å fokusere på relasjonen mellom inntekt, kjønn og BMI.
+-   `height` og `weight` er gjeve i tommar og pund; faktor 703 konverterer til BMI i kg/m². Høgda er berre brukt for å rekne ut BMI.
+-   Vi fjernar observasjonar utan registrert inntekt for å fokusere på relasjonen mellom inntekt, kjønn og BMI.
 
 ## Deskriptiv statistikk
 
@@ -100,8 +95,8 @@ basic_stats %>%
   knitr::kable(col.names = c("Kjønn", "N", "Gj. inntekt", "Median inntekt", "Gj. BMI", "Median BMI"))
 ```
 
-- Menn tjener i gjennomsnitt mer enn kvinner i dette datasettet.
-- Kjønnsforskjellen i BMI er mindre markant, men menn har noe høyere   median.
+-   Menn tjener i gjennomsnitt mer enn kvinner i dette datasettet.
+-   Kjønnsforskjellen i BMI er mindre markant, men menn har noe høyere median.
 
 ## Fordeling av BMI
 
@@ -118,8 +113,8 @@ heights_bmi %>%
   theme_minimal(base_size = 16)
 ```
 
-- Begge kjønn viser en relativt normalfordelt BMI rundt midten av 20-tallet.
-- Kvinner har en litt mer sammenklemt fordeling, mens menn har flere observasjoner med høyere BMI.
+-   Begge kjønn viser en relativt normalfordelt BMI rundt midten av 20-tallet.
+-   Kvinner har en litt mer sammenklemt fordeling, mens menn har flere observasjoner med høyere BMI.
 
 ## BMI og inntekt
 
@@ -165,6 +160,7 @@ ggplot(df_plot, aes(BMI, inntekt, colour = kjonn)) +
 ```
 
 # Det er en svak negativ trend mellom BMI og inntekt for begge kjønn.
+
 # Menn ligger generelt høyere i inntekt, spesielt ved lavere BMI.
 
 ## Kjønnsforskjeller i inntekt fordelt på BMI-kvartil
@@ -189,8 +185,8 @@ heights_bmi %>%
   theme_minimal(base_size = 16)
 ```
 
-- Menn dominerer inntektsmessig i alle BMI-kvartiler.
-- Største forskjellen ser vi i den laveste BMI-gruppa, mens forskjellen blir mindre mot høyere BMI.
+-   Menn dominerer inntektsmessig i alle BMI-kvartiler.
+-   Største forskjellen ser vi i den laveste BMI-gruppa, mens forskjellen blir mindre mot høyere BMI.
 
 ## Korrelasjon mellom inntekt og BMI
 
@@ -213,18 +209,18 @@ cor_tabel %>%
   knitr::kable(col.names = c("Kategori", "Korrelasjon (inntekt vs BMI)"))
 ```
 
-- Korrelasjonen mellom inntekt og BMI er svak negativ totalt, og forskjellen mellom kjønn er små.
-- Dette tyder på at kjønnsforskjellene i inntekt hovedsaklig kommer frå andre forhold enn BMI.
+-   Korrelasjonen mellom inntekt og BMI er svak negativ totalt, og forskjellen mellom kjønn er små.
+-   Dette tyder på at kjønnsforskjellene i inntekt hovedsaklig kommer frå andre forhold enn BMI.
 
 ## Avgrensingar og videre arbeid
 
-- Data er observasjonelle og fanger ikke nødvendigvis opp årsakssammenhenger.
-- Inntekt er rapportert i USD og kan være påvirket av geografi og sektor.
+-   Data er observasjonelle og fanger ikke nødvendigvis opp årsakssammenhenger.
+-   Inntekt er rapportert i USD og kan være påvirket av geografi og sektor.
 
 ## Konklusjon
 
-1. Kjønn er en sterkere indikator for inntekt enn BMI i dette utvalget.
+1.  Kjønn er en sterkere indikator for inntekt enn BMI i dette utvalget.
 
-2. Lavere BMI henger svakt sammen med høyere inntekt, spesielt blant menn.
+2.  Lavere BMI henger svakt sammen med høyere inntekt, spesielt blant menn.
 
-3. Resultatene støtter litteraturen som peker på fordeler knyttet til fysisk framtoning i arbeidslivet (@judge2004), selv om høyde ikke er eksplisitt analysert her.
+3.  Resultatene støtter litteraturen som peker på fordeler knyttet til fysisk framtoning i arbeidslivet (@judge2004), selv om høyde ikke er eksplisitt analysert her.

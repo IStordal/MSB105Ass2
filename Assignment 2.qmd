@@ -28,7 +28,7 @@ heights <- modelr::heights
 
 ## Problemstilling
 
--   Hva sier data fra modelr::heights om sammenhengen mellom inntekt, kjønn og BMI?
+-   Hva sier data hentet fra datasettet "modelr::heights" om sammenhengen mellom inntekt, kjønn og BMI?
 
 -   Hvordan kan mønstre i data underbygge diskusjonen hos @judge2004 om fysisk fremtoning og suksess i arbeidslivet?
 
@@ -69,10 +69,55 @@ heights_bmi <- heights %>%
   filter(!is.na(income))
 ```
 
--   `height` og `weight` er gjeve i tommar og pund; faktor 703 konverterer til BMI i kg/m². Høgda er berre brukt for å rekne ut BMI.
+-   I modellen er høyde og vekt oppgitt i henholvdsvis tommar og pund. For å finne frem til objektenes MBI benytes følgende formel: (vekt/ høyde\^2) \*703.
 -   Vi fjernar observasjonar utan registrert inntekt for å fokusere på relasjonen mellom inntekt, kjønn og BMI.
 
 ## Deskriptiv statistikk
+
+```{r}
+heights_bmi %>%
+  mutate(bmi_group = cut(bmi, breaks = c(0, 18.5, 25, 30, 100),
+                         labels = c("Undervekt", "Normal", "Overvekt", "Fedme"))) %>%
+  filter(!is.na(income), !is.na(bmi_group), !is.na(sex)) %>%
+  group_by(sex, bmi_group) %>%
+  summarise(mean_income = mean(income), .groups = "drop") %>%
+  ggplot(aes(x = bmi_group, y = mean_income, fill = sex)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous(labels = label_comma()) +
+  labs(
+    x = "BMI-kategori",
+    y = "Gjennomsnittlig inntekt",
+    fill = "Kjønn",
+    title = "Gjennomsnittlig inntekt etter kjønn og BMI-kategori"
+  ) +
+  theme(
+    axis.text = element_text(size = 15),
+    axis.title = element_text(size = 15),
+    plot.title = element_text(size = 16, face = "bold")
+  )
+
+```
+
+```{r}
+bmi_tabell <- data.frame(
+  Kategori = c("Undervekt", "Normal vekt", "Overvekt", "Fedme"),
+  Fra = c(0, 18.5, 25, 30),
+  Til = c(18.5, 25, 30, Inf),
+  Beskrivelse = c(
+    "Lavere enn normalt, kan tyde på underernæring",
+    "Sunn og normal vekt",
+    "Litt over anbefalt vekt",
+    "Høy vekt, økt helserisiko"
+  )
+)
+
+# Vis tabellen
+bmi_tabell
+
+```
+
+Verdens helse organisasjon (who) har grupert BMI skalaen i 4 hovedgrupper.
+@canadian2003
 
 ```{r}
 basic_stats <- heights_bmi %>%
@@ -92,7 +137,8 @@ basic_stats %>%
     `Gj. BMI` = number(`Gj. BMI`, accuracy = 0.1),
     `Median BMI` = number(`Median BMI`, accuracy = 0.1)
   ) %>%
-  knitr::kable(col.names = c("Kjønn", "N", "Gj. inntekt", "Median inntekt", "Gj. BMI", "Median BMI"))
+  knitr::kable(col.names
+                 = c("Kjønn", "N", "Gj. inntekt", "Median inntekt", "Gj. BMI", "Median BMI"))
 ```
 
 -   Menn tjener i gjennomsnitt mer enn kvinner i dette datasettet.

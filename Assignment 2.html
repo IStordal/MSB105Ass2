@@ -27,7 +27,27 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
-  </style>
+    /* CSS for citations */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+      margin-bottom: 0em;
+    }
+    .hanging-indent div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }  </style>
   <link rel="stylesheet" href="Assignment 2_files/libs/revealjs/dist/theme/quarto-2f366650f320edcfcf53d73c80250a32.css">
   <link href="Assignment 2_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="Assignment 2_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
@@ -143,8 +163,8 @@
 <section id="problemstilling" class="slide level2">
 <h2>Problemstilling</h2>
 <ul>
-<li><p>Hva sier data fra modelr::heights om sammenhengen mellom inntekt, kjønn og BMI?</p></li>
-<li><p>Hvordan kan mønstre i data underbygge diskusjonen hos <span class="citation" data-cites="judge2004">(<a href="" role="doc-biblioref" onclick="return false;"><strong>judge2004?</strong></a>)</span> om fysisk fremtoning og suksess i arbeidslivet?</p></li>
+<li><p>Hva sier data hentet fra datasettet “modelr::heights” om sammenhengen mellom inntekt, kjønn og BMI?</p></li>
+<li><p>Hvordan kan mønstre i data underbygge diskusjonen hos <span class="citation" data-cites="judge2004">(<a href="#/konklusjon" role="doc-biblioref" onclick=""><strong>judge2004?</strong></a>)</span> om fysisk fremtoning og suksess i arbeidslivet?</p></li>
 </ul>
 </section>
 <section id="tabell-fra-antonio" class="slide level2">
@@ -154,12 +174,29 @@
 <section id="datagrunnlag" class="slide level2">
 <h2>Datagrunnlag</h2>
 <ul>
-<li><code>height</code> og <code>weight</code> er gjeve i tommar og pund; faktor 703 konverterer til BMI i kg/m². Høgda er berre brukt for å rekne ut BMI.</li>
+<li>I modellen er høyde og vekt oppgitt i henholvdsvis tommar og pund. For å finne frem til objektenes MBI benytes følgende formel: (vekt/ høyde^2) *703.</li>
 <li>Vi fjernar observasjonar utan registrert inntekt for å fokusere på relasjonen mellom inntekt, kjønn og BMI.</li>
 </ul>
 </section>
 <section id="deskriptiv-statistikk" class="slide level2">
 <h2>Deskriptiv statistikk</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>     Kategori  Fra  Til
+1   Undervekt  0.0 18.5
+2 Normal vekt 18.5 25.0
+3    Overvekt 25.0 30.0
+4       Fedme 30.0  Inf</code></pre>
+</div>
+</div>
+<p>Verdens helse organisasjon (who) har grupert BMI skalaen i 4 hovedgrupper. <span class="citation" data-cites="canadian2003"><em>Canadian guidelines for body weight classification in adults</em> (<a href="#/konklusjon" role="doc-biblioref" onclick="">2003</a>)</span></p>
+</section>
+<section id="fordeling-etter-bmi-kategorier" class="slide level2">
+<h2>Fordeling etter BMI kategorier</h2>
+
+<img data-src="Assignment-2_files/figure-revealjs/unnamed-chunk-7-1.png" width="960" class="r-stretch"></section>
+<section id="gjenomsnittelig-fordeling" class="slide level2">
+<h2>Gjenomsnittelig fordeling</h2>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top">
@@ -202,7 +239,7 @@
 <section id="fordeling-av-bmi" class="slide level2">
 <h2>Fordeling av BMI</h2>
 
-<img data-src="Assignment-2_files/figure-revealjs/unnamed-chunk-7-1.png" width="960" class="r-stretch"><ul>
+<img data-src="Assignment-2_files/figure-revealjs/unnamed-chunk-9-1.png" width="960" class="r-stretch"><ul>
 <li>Begge kjønn viser en relativt normalfordelt BMI rundt midten av 20-tallet.</li>
 <li>Kvinner har en litt mer sammenklemt fordeling, mens menn har flere observasjoner med høyere BMI.</li>
 </ul>
@@ -226,7 +263,7 @@ Figure&nbsp;1
 <section id="kjønnsforskjeller-i-inntekt-fordelt-på-bmi-kvartil" class="slide level2">
 <h2>Kjønnsforskjeller i inntekt fordelt på BMI-kvartil</h2>
 
-<img data-src="Assignment-2_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"><ul>
+<img data-src="Assignment-2_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch"><ul>
 <li>Menn dominerer inntektsmessig i alle BMI-kvartiler.</li>
 <li>Største forskjellen ser vi i den laveste BMI-gruppa, mens forskjellen blir mindre mot høyere BMI.</li>
 </ul>
@@ -271,14 +308,19 @@ Figure&nbsp;1
 <li>Inntekt er rapportert i USD og kan være påvirket av geografi og sektor.</li>
 </ul>
 </section>
-<section id="konklusjon" class="slide level2">
+<section id="konklusjon" class="slide level2 smaller scrollable">
 <h2>Konklusjon</h2>
 <ol type="1">
 <li><p>Kjønn er en sterkere indikator for inntekt enn BMI i dette utvalget.</p></li>
 <li><p>Lavere BMI henger svakt sammen med høyere inntekt, spesielt blant menn.</p></li>
-<li><p>Resultatene støtter litteraturen som peker på fordeler knyttet til fysisk framtoning i arbeidslivet (<span class="citation" data-cites="judge2004">(<a href="" role="doc-biblioref" onclick="return false;"><strong>judge2004?</strong></a>)</span>), selv om høyde ikke er eksplisitt analysert her.</p></li>
+<li><p>Resultatene støtter litteraturen som peker på fordeler knyttet til fysisk framtoning i arbeidslivet (<span class="citation" data-cites="judge2004">(<a href="#/konklusjon" role="doc-biblioref" onclick=""><strong>judge2004?</strong></a>)</span>), selv om høyde ikke er eksplisitt analysert her.</p></li>
 </ol>
 
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-canadian2003" class="csl-entry" role="listitem">
+<em>Canadian guidelines for body weight classification in adults</em>. (2003). [Computer software]. Health Canada.
+</div>
+</div>
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">

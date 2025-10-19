@@ -75,6 +75,22 @@ heights_bmi <- heights %>%
 ## Deskriptiv statistikk
 
 ```{r}
+bmi_tabell <- data.frame(
+  Kategori = c("Undervekt", "Normal vekt", "Overvekt", "Fedme"),
+  Fra = c(0, 18.5, 25, 30),
+  Til = c(18.5, 25, 30, Inf)
+)
+
+# Vis tabellen
+bmi_tabell
+```
+
+Verdens helse organisasjon (who) har grupert BMI skalaen i 4 hovedgrupper.
+@canadian2003
+
+## Fordeling etter BMI kategorier
+
+```{r}
 heights_bmi %>%
   mutate(bmi_group = cut(bmi, breaks = c(0, 18.5, 25, 30, 100),
                          labels = c("Undervekt", "Normal", "Overvekt", "Fedme"))) %>%
@@ -98,26 +114,7 @@ heights_bmi %>%
 
 ```
 
-```{r}
-bmi_tabell <- data.frame(
-  Kategori = c("Undervekt", "Normal vekt", "Overvekt", "Fedme"),
-  Fra = c(0, 18.5, 25, 30),
-  Til = c(18.5, 25, 30, Inf),
-  Beskrivelse = c(
-    "Lavere enn normalt, kan tyde på underernæring",
-    "Sunn og normal vekt",
-    "Litt over anbefalt vekt",
-    "Høy vekt, økt helserisiko"
-  )
-)
-
-# Vis tabellen
-bmi_tabell
-
-```
-
-Verdens helse organisasjon (who) har grupert BMI skalaen i 4 hovedgrupper.
-@canadian2003
+## Gjenomsnittelig fordeling 
 
 ```{r}
 basic_stats <- heights_bmi %>%

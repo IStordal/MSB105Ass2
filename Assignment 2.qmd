@@ -32,31 +32,13 @@ heights <- modelr::heights
 
 -   Hvordan kan mønstre i data underbygge diskusjonen hos @judge2004 om fysisk fremtoning og suksess i arbeidslivet?
 
-## Tabell fra Antonio
+## Hva er BMI?
 
-```{r}
-ggplot(
-  data = heights %>%
-    filter(!is.na(income), !is.na(education), !is.na(sex)) %>%
-    group_by(sex, education) %>%
-    summarise(mean_income = mean(income), .groups = "drop"),
-  aes(x = education, y = mean_income, fill = sex)
-) +
-  geom_col(position = "dodge") +
-  scale_y_continuous(labels = label_comma()) +
-  labs(
-    x = "Utdanning",
-    y = "Gjennomsnittlig inntekt",
-    fill = "Kjønn",
-    title = "Gjennomsnittlig inntekt etter utdanning og kjønn"
-  ) +
-  theme(
-    axis.text = element_text(size = 15),
-    axis.title = element_text(size = 15),
-    plot.title = element_text(size = 16, face = "bold")
-  )
+BMI er en skala som måler forholdet mellom en persons høyde og vekt
 
-```
+Skalaen er en indikator på hvor sunn personen er
+
+Tar ikke høyde for fordeling mellom fett og muskler
 
 ## Datagrunnlag
 
@@ -66,7 +48,7 @@ heights_bmi <- heights %>%
     bmi = (weight / (height^2)) * 703,
     sex = fct_recode(sex, Kvinner = "female", Menn = "male")
   ) %>%
-  filter(!is.na(income) & income != 0)
+  filter(!is.na(income))
 ```
 
 -   I modellen er høyde og vekt oppgitt i henholvdsvis tommar og pund. For å finne frem til objektenes MBI benytes følgende formel: (vekt/ høyde\^2) \*703.
@@ -113,6 +95,16 @@ heights_bmi %>%
   )
 
 ```
+
+## Glorie-effekten
+
+Menn som faller innenfor overvekt, og kvinner innenfor normalvekt tjener mest etter dataene.
+
+En forklaring på dette kan være den såkalte Glorie- effekten
+
+BMI tar bare høyde for total vekt, og ikke fordeling av muskler og fett
+
+BMI er bare en av mange variabler som utgjør atraksjon
 
 ## Gjenomsnittelig fordeling
 

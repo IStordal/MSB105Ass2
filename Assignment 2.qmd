@@ -35,34 +35,6 @@ heights <- modelr::heights
 - Hvordan kan mønstre i data underbygge diskusjonen hos @judge2004 om fysisk fremtoning og suksess i arbeidslivet?
 
 
-## Tabell fra Antonio
-
-```{r}
-ggplot(
-  data = heights %>%
-    filter(!is.na(income), !is.na(education), !is.na(sex)) %>%
-    group_by(sex, education) %>%
-    summarise(mean_income = mean(income), .groups = "drop"),
-  aes(x = education, y = mean_income, fill = sex)
-) +
-  geom_col(position = "dodge") +
-  scale_y_continuous(labels = label_comma()) +
-  labs(
-    x = "Utdanning",
-    y = "Gjennomsnittlig inntekt",
-    fill = "Kjønn",
-    title = "Gjennomsnittlig inntekt etter utdanning og kjønn"
-  ) +
-  theme(
-    axis.text = element_text(size = 15),
-    axis.title = element_text(size = 15),
-    plot.title = element_text(size = 16, face = "bold")
-  )
-
-```
-
-
-
 ## Datagrunnlag
 
 ```{r}
@@ -134,94 +106,6 @@ heights_bmi %>%
 - Generelt er forskjellen liten. fordelingen ser ganske lik ut for begge kjønn.
 
 
-
-## BMI og inntekt
-
-```{r}
-#| label: fig-bmi-inntekt-ryddig
-#| fig-width: 10
-#| fig-height: 6
-#| echo: false
-library(dplyr)
-library(ggplot2)
-library(scales)
-
-base <- heights_bmi |>
-  rename(inntekt = income, kjonn = sex, BMI = bmi) |>
-  mutate(kjonn = forcats::fct_relevel(kjonn, "Menn", "Kvinner"))
-
-# Nedprøv ~30 % av punktene for å unngå prikksalat
-set.seed(123)
-df_plot <- base |> dplyr::slice_sample(prop = 0.30)
-
-ggplot(df_plot, aes(BMI, inntekt, colour = kjonn)) +
-  geom_point(alpha = 0.25, size = 0.8) +
-  geom_smooth(data = base, method = "lm", se = FALSE, linewidth = 1.2) +
-  coord_cartesian(ylim = c(0, 200000)) +
-  scale_y_continuous(
-    labels = label_dollar(prefix = "", suffix = " USD", big.mark = " "),
-    breaks = pretty_breaks(5)
-  ) +
-  scale_color_manual(values = c("Menn" = "#88C0D0", "Kvinner" = "#BF616A"), name = "Kjønn") +
-  labs(
-    title = "BMI og inntekt",
-    subtitle = "Nedprøvd til 30 % av observasjonene for lesbarhet. Trend basert på hele datasettet",
-    x = "BMI",
-    y = "Inntekt (USD)"
-  ) +
-  theme_minimal(base_size = 16) +
-  theme(
-    legend.position = "top",
-    panel.grid.minor = element_blank(),
-    panel.grid.major.x = element_blank()
-  )
-
-```
-
-# Det er en svak negativ trend mellom BMI og inntekt for begge kjønn.
-# Menn ligger generelt høyere i inntekt, spesielt ved lavere BMI.
-
-## Kjønnsforskjeller i inntekt fordelt på BMI-kvartil
-
-## bruh
-```{r}
-heights_bmi %>%
-mutate(
-bmi_kategori = case_when(
-bmi < 18.5 ~ "Undervektig",
-bmi >= 18.5 & bmi < 25 ~ "Normal",
-bmi >= 25 & bmi < 30 ~ "Overvektig",
-bmi >= 30 ~ "Fedme",
-TRUE ~ NA_character_
-),
-bmi_kategori = factor(
-bmi_kategori,
-levels = c("Undervektig", "Normal", "Overvektig", "Fedme")
-)
-) %>%
-group_by(sex, bmi_kategori) %>%
-summarise(
-median_inntekt = median(income, na.rm = TRUE),
-.groups = "drop"
-) %>%
-ggplot(aes(x = bmi_kategori, y = median_inntekt, fill = sex)) +
-geom_col(position = position_dodge(width = 0.7)) +
-scale_fill_manual(values = c("#88C0D0", "#BF616A")) +
-scale_y_continuous(labels = dollar_format(prefix = "", suffix = " USD")) +
-labs(
-title = "Median inntekt etter BMI-kategori og kjønn",
-x = "BMI-kategori",
-y = "Median inntekt"
-) +
-theme_minimal(base_size = 16)
-
-```
-- Menn dominerer inntektsmessig i alle BMI-kvartiler.
-- Største forskjellen ser vi i den laveste BMI-gruppa, mens forskjellen blir mindre mot høyere BMI.
-
-
-
-
 ## Korrelasjon mellom inntekt og BMI
 
 ```{r}
@@ -259,6 +143,6 @@ cor_tabel %>%
 
 1. Kjønn er en sterkere indikator for inntekt enn BMI i dette utvalget.
 
-2. Lavere BMI henger svakt sammen med høyere inntekt, spesielt blant menn.
+2. BMI henger svakt sammen med inntekt, spesielt blant kvinner.
 
 3. Resultatene støtter litteraturen som peker på fordeler knyttet til fysisk framtoning i arbeidslivet (@judge2004), selv om høyde ikke er eksplisitt analysert her.

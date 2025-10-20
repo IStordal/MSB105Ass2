@@ -54,6 +54,52 @@ heights_bmi <- heights %>%
 -   I modellen er høyde og vekt oppgitt i henholvdsvis tommar og pund. For å finne frem til objektenes MBI benytes følgende formel: (vekt/ høyde\^2) \*703.
 -   Vi fjernar observasjonar utan registrert inntekt for å fokusere på relasjonen mellom inntekt, kjønn og BMI.
 
+## Gjenomsnittelig fordeling
+
+```{r}
+basic_stats <- heights_bmi %>%
+  group_by(sex) %>%
+  summarise(
+    N = n(),
+    `Gj. inntekt` = mean(income, na.rm = TRUE),
+    `Median inntekt` = median(income, na.rm = TRUE),
+    `Gj. BMI` = mean(bmi, na.rm = TRUE),
+    `Median BMI` = median(bmi, na.rm = TRUE)
+  )
+
+basic_stats %>%
+  mutate(
+    `Gj. inntekt` = dollar(`Gj. inntekt`, prefix = "", suffix = " USD"),
+    `Median inntekt` = dollar(`Median inntekt`, prefix = "", suffix = " USD"),
+    `Gj. BMI` = number(`Gj. BMI`, accuracy = 0.1),
+    `Median BMI` = number(`Median BMI`, accuracy = 0.1)
+  ) %>%
+  knitr::kable(col.names
+                 = c("Kjønn", "N", "Gj. inntekt", "Median inntekt", "Gj. BMI", "Median BMI"))
+```
+
+-   Menn tjener i gjennomsnitt mer enn kvinner i dette datasettet.
+-   Kjønnsforskjellen i BMI er mindre markant, men menn har noe høyere median.
+
+## Fordeling av BMI
+
+```{r}
+heights_bmi %>%
+  ggplot(aes(x = bmi, fill = sex)) +
+  geom_histogram(alpha = 0.7, position = "identity", bins = 30) +
+  scale_fill_manual(values = c("#88C0D0", "#BF616A")) +
+  labs(
+    title = "Fordeling av BMI etter kjønn",
+    x = "BMI",
+    y = "Antal"
+  ) +
+  theme_minimal(base_size = 16)
+
+```
+
+-   Begge kjønn viser en relativt normalfordelt BMI rundt midten av 20-tallet.
+-   Kvinner har en litt mer sammenklemt fordeling, mens menn har flere observasjoner med høyere BMI.
+
 ## Deskriptiv statistikk
 
 ```{r}
@@ -96,6 +142,14 @@ heights_bmi %>%
 
 ```
 
+## Helse sin påvirkning på atraksjon
+
+@rhodes2007 Sier at studier indikerer at helse er med å påvirke hvor atraktiv en person fremstår
+
+@kanazawa2004 Sier at studier gir emperi for at attraktive personer er smartere enn uattraktive personer
+
+BMI er en indikasjon på helse
+
 ## Glorie-effekten
 
 Menn som faller innenfor overvekt, og kvinner innenfor normalvekt tjener mest etter dataene.
@@ -105,123 +159,6 @@ En forklaring på dette kan være den såkalte Glorie- effekten
 BMI tar bare høyde for total vekt, og ikke fordeling av muskler og fett
 
 BMI er bare en av mange variabler som utgjør atraksjon
-
-## Gjenomsnittelig fordeling
-
-```{r}
-basic_stats <- heights_bmi %>%
-  group_by(sex) %>%
-  summarise(
-    N = n(),
-    `Gj. inntekt` = mean(income, na.rm = TRUE),
-    `Median inntekt` = median(income, na.rm = TRUE),
-    `Gj. BMI` = mean(bmi, na.rm = TRUE),
-    `Median BMI` = median(bmi, na.rm = TRUE)
-  )
-
-basic_stats %>%
-  mutate(
-    `Gj. inntekt` = dollar(`Gj. inntekt`, prefix = "", suffix = " USD"),
-    `Median inntekt` = dollar(`Median inntekt`, prefix = "", suffix = " USD"),
-    `Gj. BMI` = number(`Gj. BMI`, accuracy = 0.1),
-    `Median BMI` = number(`Median BMI`, accuracy = 0.1)
-  ) %>%
-  knitr::kable(col.names
-                 = c("Kjønn", "N", "Gj. inntekt", "Median inntekt", "Gj. BMI", "Median BMI"))
-```
-
--   Menn tjener i gjennomsnitt mer enn kvinner i dette datasettet.
--   Kjønnsforskjellen i BMI er mindre markant, men menn har noe høyere median.
-
-## Fordeling av BMI
-
-```{r}
-heights_bmi %>%
-  ggplot(aes(x = bmi, fill = sex)) +
-  geom_histogram(alpha = 0.7, position = "identity", bins = 30) +
-  scale_fill_manual(values = c("#88C0D0", "#BF616A")) +
-  labs(
-    title = "Fordeling av BMI etter kjønn",
-    x = "BMI",
-    y = "Antal"
-  ) +
-  theme_minimal(base_size = 16)
-```
-
--   Begge kjønn viser en relativt normalfordelt BMI rundt midten av 20-tallet.
--   Kvinner har en litt mer sammenklemt fordeling, mens menn har flere observasjoner med høyere BMI.
-
-## BMI og inntekt
-
-```{r}
-#| label: fig-bmi-inntekt-ryddig
-#| fig-width: 10
-#| fig-height: 6
-#| echo: false
-library(dplyr)
-library(ggplot2)
-library(scales)
-
-base <- heights_bmi |>
-  rename(inntekt = income, kjonn = sex, BMI = bmi) |>
-  mutate(kjonn = forcats::fct_relevel(kjonn, "Menn", "Kvinner"))
-
-# Nedprøv ~30 % av punktene for å unngå prikksalat
-set.seed(123)
-df_plot <- base |> dplyr::slice_sample(prop = 0.30)
-
-ggplot(df_plot, aes(BMI, inntekt, colour = kjonn)) +
-  geom_point(alpha = 0.25, size = 0.8) +
-  geom_smooth(data = base, method = "lm", se = FALSE, linewidth = 1.2) +
-  coord_cartesian(ylim = c(0, 200000)) +
-  scale_y_continuous(
-    labels = label_dollar(prefix = "", suffix = " USD", big.mark = " "),
-    breaks = pretty_breaks(5)
-  ) +
-  scale_color_manual(values = c("Menn" = "#88C0D0", "Kvinner" = "#BF616A"), name = "Kjønn") +
-  labs(
-    title = "BMI og inntekt",
-    subtitle = "Nedprøvd til 30 % av observasjonene for lesbarhet. Trend basert på hele datasettet",
-    x = "BMI",
-    y = "Inntekt (USD)"
-  ) +
-  theme_minimal(base_size = 16) +
-  theme(
-    legend.position = "top",
-    panel.grid.minor = element_blank(),
-    panel.grid.major.x = element_blank()
-  )
-
-```
-
-# Det er en svak negativ trend mellom BMI og inntekt for begge kjønn.
-
-# Menn ligger generelt høyere i inntekt, spesielt ved lavere BMI.
-
-## Kjønnsforskjeller i inntekt fordelt på BMI-kvartil
-
-```{r}
-heights_bmi %>%
-  mutate(bmi_kvartil = ntile(bmi, 4)) %>%
-  group_by(sex, bmi_kvartil) %>%
-  summarise(
-    median_inntekt = median(income, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  ggplot(aes(x = factor(bmi_kvartil), y = median_inntekt, fill = sex)) +
-  geom_col(position = position_dodge(width = 0.7)) +
-  scale_fill_manual(values = c("#88C0D0", "#BF616A")) +
-  scale_y_continuous(labels = dollar_format(prefix = "", suffix = " USD")) +
-  labs(
-    title = "Median inntekt etter BMI-kvartil og kjønn",
-    x = "BMI-kvartil (1 = låg BMI)",
-    y = "Median inntekt"
-  ) +
-  theme_minimal(base_size = 16)
-```
-
--   Menn dominerer inntektsmessig i alle BMI-kvartiler.
--   Største forskjellen ser vi i den laveste BMI-gruppa, mens forskjellen blir mindre mot høyere BMI.
 
 ## Korrelasjon mellom inntekt og BMI
 
@@ -256,6 +193,7 @@ cor_tabel %>%
 
 1.  Kjønn er en sterkere indikator for inntekt enn BMI i dette utvalget.
 
-2.  Lavere BMI henger svakt sammen med høyere inntekt, spesielt blant menn.
+2.  BMI for kvinner
 
-3.  Resultatene støtter litteraturen som peker på fordeler knyttet til fysisk framtoning i arbeidslivet (@judge2004), selv om høyde ikke er eksplisitt analysert her.
+3.  Glorie effekten støtter judge sin påstand om at fysisk fremtoning påvirker suksess i arbeidslivet (@judge2004).
+    Vi vil påpeke at BMI bare en en av mange variabler her og det er begrenset hvor mye av effekten som kan tilegnes.

@@ -100,26 +100,40 @@ basic_stats %>%
   knitr::kable(col.names = c("Kjønn", "N", "Gj. inntekt", "Median inntekt", "Gj. BMI", "Median BMI"))
 ```
 
-- Menn tjener i gjennomsnitt mer enn kvinner i dette datasettet.
-- Kjønnsforskjellen i BMI er mindre markant, men menn har noe høyere   median.
+- Menn tjener klart mer enn kvinner i dette datasettet, både i gjennomsnitt og i median.
+N- år det gjelder BMI, er medianen den samme for begge kjønn, men gjennomsnittet er litt høyere for kvinner.
+- Det betyr at de fleste ligger omtrent likt, men kvinner har litt flere med høyere BMI-verdier.
 
 ## Fordeling av BMI
 
 ```{r}
 heights_bmi %>%
   ggplot(aes(x = bmi, fill = sex)) +
-  geom_histogram(alpha = 0.7, position = "identity", bins = 30) +
-  scale_fill_manual(values = c("#88C0D0", "#BF616A")) +
+  geom_histogram(alpha = 0.8, position = "dodge", bins = 40, color = "white") +
+  scale_fill_manual(values = c("#88C0D0", "#BF616A"),
+                    name = "Kjønn",
+                    labels = c("Menn", "Kvinner")) +
+  scale_x_continuous(breaks = seq(10, 40, by = 5)) +
   labs(
     title = "Fordeling av BMI etter kjønn",
-    x = "BMI",
-    y = "Antal"
+    x = "BMI (Body Mass Index)",
+    y = "Antall observasjoner"
   ) +
-  theme_minimal(base_size = 16)
+  theme_minimal(base_size = 16) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    legend.position = "top"
+  )
+
 ```
 
-- Begge kjønn viser en relativt normalfordelt BMI rundt midten av 20-tallet.
-- Kvinner har en litt mer sammenklemt fordeling, mens menn har flere observasjoner med høyere BMI.
+- Diagrammet viser fordelingen av BMI for menn og kvinner.
+- Begge kjønn ligger hovedsakelig mellom BMI 25 og 30, som regnes som normal til lett overvekt.
+-Menn har en liten topp litt høyere enn kvinnene, altså litt høyere BMI i snitt.
+- Kvinner har derimot noen flere med veldig høy BMI.
+- Generelt er forskjellen liten. fordelingen ser ganske lik ut for begge kjønn.
+
+
 
 ## BMI og inntekt
 
@@ -169,28 +183,44 @@ ggplot(df_plot, aes(BMI, inntekt, colour = kjonn)) +
 
 ## Kjønnsforskjeller i inntekt fordelt på BMI-kvartil
 
+## bruh
 ```{r}
 heights_bmi %>%
-  mutate(bmi_kvartil = ntile(bmi, 4)) %>%
-  group_by(sex, bmi_kvartil) %>%
-  summarise(
-    median_inntekt = median(income, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  ggplot(aes(x = factor(bmi_kvartil), y = median_inntekt, fill = sex)) +
-  geom_col(position = position_dodge(width = 0.7)) +
-  scale_fill_manual(values = c("#88C0D0", "#BF616A")) +
-  scale_y_continuous(labels = dollar_format(prefix = "", suffix = " USD")) +
-  labs(
-    title = "Median inntekt etter BMI-kvartil og kjønn",
-    x = "BMI-kvartil (1 = låg BMI)",
-    y = "Median inntekt"
-  ) +
-  theme_minimal(base_size = 16)
-```
+mutate(
+bmi_kategori = case_when(
+bmi < 18.5 ~ "Undervektig",
+bmi >= 18.5 & bmi < 25 ~ "Normal",
+bmi >= 25 & bmi < 30 ~ "Overvektig",
+bmi >= 30 ~ "Fedme",
+TRUE ~ NA_character_
+),
+bmi_kategori = factor(
+bmi_kategori,
+levels = c("Undervektig", "Normal", "Overvektig", "Fedme")
+)
+) %>%
+group_by(sex, bmi_kategori) %>%
+summarise(
+median_inntekt = median(income, na.rm = TRUE),
+.groups = "drop"
+) %>%
+ggplot(aes(x = bmi_kategori, y = median_inntekt, fill = sex)) +
+geom_col(position = position_dodge(width = 0.7)) +
+scale_fill_manual(values = c("#88C0D0", "#BF616A")) +
+scale_y_continuous(labels = dollar_format(prefix = "", suffix = " USD")) +
+labs(
+title = "Median inntekt etter BMI-kategori og kjønn",
+x = "BMI-kategori",
+y = "Median inntekt"
+) +
+theme_minimal(base_size = 16)
 
+```
 - Menn dominerer inntektsmessig i alle BMI-kvartiler.
 - Største forskjellen ser vi i den laveste BMI-gruppa, mens forskjellen blir mindre mot høyere BMI.
+
+
+
 
 ## Korrelasjon mellom inntekt og BMI
 
@@ -213,8 +243,12 @@ cor_tabel %>%
   knitr::kable(col.names = c("Kategori", "Korrelasjon (inntekt vs BMI)"))
 ```
 
-- Korrelasjonen mellom inntekt og BMI er svak negativ totalt, og forskjellen mellom kjønn er små.
-- Dette tyder på at kjønnsforskjellene i inntekt hovedsaklig kommer frå andre forhold enn BMI.
+- Tabellen viser korrelasjonen mellom inntekt og BMI.
+- Vi ser at sammenhengen er svak og negativ – totalt er den på −0,07.
+- Det betyr at høyere BMI henger sammen med litt lavere inntekt, men forskjellen er veldig liten.
+- For menn er sammenhengen nesten fraværende (−0,05), mens for kvinner er den litt sterkere (−0,10).
+- Med andre ord: BMI ser ikke ut til å påvirke inntekten særlig mye, men blant kvinner er tendensen tydeligere.
+
 
 ## Avgrensingar og videre arbeid
 

@@ -74,8 +74,8 @@ heights_bmi <- heights %>%
   filter(!is.na(income))
 ```
 
-- `height` og `weight` er gjeve i tommar og pund; faktor 703 konverterer til BMI i kg/m². Høgda er berre brukt for å rekne ut BMI.
-- Vi fjernar observasjonar utan registrert inntekt for å fokusere på relasjonen mellom inntekt, kjønn og BMI.
+- `height` og `weight` er gitt i tommwr og pund; faktor 703 konverterer til BMI i kg/m². Høyden er bare brukt for å regne ut BMI.
+- Vi fjerner observasjoner uten registrert inntekt for å fokusere på relasjonen mellom inntekt, kjønn og BMI.
 
 ## Deskriptiv statistikk
 

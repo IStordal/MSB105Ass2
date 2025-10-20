@@ -1,3 +1,4 @@
+---
 title: "Hvilke sammenhenger har vi mellom inntekt, kjønn og BMI?"
 format: revealjs
 editor: visual

@@ -99,12 +99,6 @@ heights_bmi %>%
 
 ```
 
-- Diagrammet viser fordelingen av BMI for menn og kvinner.
-- Begge kjønn ligger hovedsakelig mellom BMI 25 og 30, som regnes som normal til lett overvekt.
--Menn har en liten topp litt høyere enn kvinnene, altså litt høyere BMI i snitt.
-- Kvinner har derimot noen flere med veldig høy BMI.
-- Generelt er forskjellen liten. fordelingen ser ganske lik ut for begge kjønn.
-
 
 ## Korrelasjon mellom inntekt og BMI
 
@@ -127,11 +121,10 @@ cor_tabel %>%
   knitr::kable(col.names = c("Kategori", "Korrelasjon (inntekt vs BMI)"))
 ```
 
-- Tabellen viser korrelasjonen mellom inntekt og BMI.
-- Vi ser at sammenhengen er svak og negativ – totalt er den på −0,07.
-- Det betyr at høyere BMI henger sammen med litt lavere inntekt, men forskjellen er veldig liten.
+- Vi ser at sammenhengen er svak og negativ.
+- Høyere BMI henger sammen med litt lavere inntekt, men forskjellen er veldig liten.
 - For menn er sammenhengen nesten fraværende (−0,05), mens for kvinner er den litt sterkere (−0,10).
-- Med andre ord: BMI ser ikke ut til å påvirke inntekten særlig mye, men blant kvinner er tendensen tydeligere.
+
 
 
 ## Avgrensingar og videre arbeid

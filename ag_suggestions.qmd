@@ -1,0 +1,210 @@
+---
+title: "Hvilke sammenhenger har vi mellom inntekt, kjønn og BMI?"
+format: revealjs
+editor: visual
+lang: no_nb
+csl: hvl_apa7_stil_bokmal_v1.csl
+bibliography: DataScience.bib 
+execute: 
+  echo: false
+---
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+library(modelr)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(vtable)
+library(flextable)
+library(scales)
+library(tinytex)
+```
+
+```{r}
+# function to setlocale on different systems
+# only tested on mac
+res <- if(Sys.info()["sysname"] == "Darwin") {
+  # locale -a | grep "no" in Terminal gives available locale
+  Sys.setlocale("LC_ALL", "no_NO.UTF-8")
+} else if(Sys.info()["sysname"] == "Windows") {
+  # supported language strings Windows (cpp)
+  # https://github.com/MicrosoftDocs/cpp-docs/blob/main/docs/c-runtime-library/language-strings.md
+  # 
+  Sys.setlocale("LC_ALL", "Norwegian")
+} else if(Sys.info()["sysname"] == "Linux") {
+  # reported to work on linux, gets local from system
+  Sys.setlocale("LC_ALL", "")
+} else {
+  print(paste(
+    "Can't establish system used. Sys.getlocale() returns",
+    Sys.getlocale()
+    )
+  )
+}
+```
+
+```{r}
+heights <- modelr::heights
+```
+
+## Problemstilling
+
+-   Hva sier data fra `modelr::heights` om sammenhengen mellom inntekt, kjønn og BMI?
+
+-   Hvordan kan mønstre i data underbygge diskusjonen hos @judge2004 om fysisk fremtoning og suksess i arbeidslivet?
+
+## Datagrunnlag
+
+```{r}
+# ag: trenger ikke lage nytt datasett. Bare legg til i heights
+heights <- heights %>%
+  # Har NA for vekt for 95 observasjoner
+  filter(!is.na(weight)) |> 
+  mutate(
+    bmi = (weight / (height^2)) * 703,
+    fct_recode(sex, Kvinner = "female", Menn = "male")
+  )
+```
+
+-   `height` og `weight` er gitt i tommer og pund; faktor 703 konverterer til BMI i kg/m². Høyden er bare brukt for å regne ut BMI.
+-   Vi fjerner observasjoner uten registrert *vekt* for å fokusere på relasjonen mellom inntekt, kjønn og BMI.
+
+## Litteratur
+
+-   @edwards2021a fant bla bla
+-   @asgeirsdottir2011 fant bla bla
+
+## Deskriptiv statistikk
+
+```{r}
+basic_stats <- heights %>%
+  group_by(sex) %>%
+  summarise(
+    N = n(),
+    `Gj. inntekt` = mean(income, na.rm = TRUE),
+    `Median inntekt` = median(income, na.rm = TRUE),
+    `Gj. BMI` = mean(bmi, na.rm = TRUE),
+    `Median BMI` = median(bmi, na.rm = TRUE)
+  )
+```
+
+```{r}
+basic_stats %>%
+  mutate(
+    `Gj. inntekt` = dollar(`Gj. inntekt`, prefix = "", suffix = " USD"),
+    `Median inntekt` = dollar(`Median inntekt`, prefix = "", suffix = " USD"),
+    `Gj. BMI` = number(`Gj. BMI`, accuracy = 0.1),
+    `Median BMI` = number(`Median BMI`, accuracy = 0.1)
+  ) %>%
+ # knitr::kable(col.names = c("Kjønn", "N", "Gj. inntekt", "Median inntekt", "Gj. BMI", "Median BMI"))
+ # ag: vil foreslå å heller bruke flextable
+ as_flextable(
+   show_coltype = FALSE
+ ) |> 
+  delete_part("footer") |> 
+  fontsize(size = 16, part = "all") |> 
+  theme_booktabs() |> 
+  autofit()
+```
+
+-   Menn tjener klart mer enn kvinner i dette datasettet, både i gjennomsnitt og i median. Når det gjelder BMI, er medianen den samme for begge kjønn, men gjennomsnittet er litt høyere for kvinner.
+-   Det betyr at de fleste ligger omtrent likt, men kvinner har litt flere med høyere BMI-verdier.
+
+## Fordeling av BMI {.smaller}
+
+::::: columns
+::: {.column width="60%"}
+```{r}
+heights %>%
+  ggplot(aes(x = bmi, fill = sex)) +
+  geom_histogram(alpha = 0.8, position = "dodge", bins = 40, color = "white") +
+  scale_fill_manual(values = c("#88C0D0", "#BF616A"),
+                    name = "Kjønn",
+                    labels = c("Menn", "Kvinner")) +
+  scale_x_continuous(breaks = seq(10, 75, by = 5)) +
+  labs(
+    title = "Fordeling av BMI etter kjønn",
+    x = "BMI (Body Mass Index)",
+    y = "Antall observasjoner"
+  ) +
+  theme_minimal(base_size = 16) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    legend.position = "top"
+  )
+```
+
+```{r}
+heights %>%
+  filter(bmi <= 55) |> 
+  ggplot(aes(x = bmi, fill = sex)) +
+  geom_histogram(alpha = 0.8, position = "dodge", bins = 40, color = "white") +
+  scale_fill_manual(values = c("#88C0D0", "#BF616A"),
+                    name = "Kjønn",
+                    labels = c("Menn", "Kvinner")) +
+  scale_x_continuous(breaks = seq(10, 55, by = 5)) +
+  labs(
+    title = "Fordeling av BMI ≤ 55 etter kjønn",
+    x = "BMI (Body Mass Index)",
+    y = "Antall observasjoner"
+  ) +
+  theme_minimal(base_size = 16) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    legend.position = "top"
+  )
+```
+:::
+
+::: {.column width="40%"}
+-   Diagrammet viser fordelingen av BMI for menn og kvinner.
+-   Begge kjønn ligger hovedsakelig mellom BMI 25 og 30, som regnes som normal til lett overvekt. -Menn har en liten topp litt høyere enn kvinnene, altså litt høyere BMI i snitt.
+-   Kvinner har derimot noen flere med veldig høy BMI.
+-   Generelt er forskjellen liten. fordelingen ser ganske lik ut for begge kjønn.
+:::
+:::::
+
+## Korrelasjon mellom inntekt og BMI {.smaller}
+
+```{r}
+cor_tabel <- heights %>%
+  summarise(
+    `Korrelasjon totalt` = cor(income, bmi, use = "complete.obs")
+  ) %>%
+  mutate(Kategori = "Totalt") %>%
+  relocate(Kategori) %>%
+  bind_rows(
+    heights %>%
+      group_by(sex) %>%
+      summarise(`Korrelasjon totalt` = cor(income, bmi, use = "complete.obs")) %>%
+      rename(Kategori = sex)
+  )
+
+cor_tabel %>%
+  mutate(`Korrelasjon totalt` = number(`Korrelasjon totalt`, accuracy = 0.01)) %>%
+  knitr::kable(col.names = c("Kategori", "Korrelasjon (inntekt vs BMI)"))
+```
+
+-   Tabellen viser korrelasjonen mellom inntekt og BMI.
+-   Vi ser at sammenhengen er svak og negativ – totalt er den på −0,07.
+-   Det betyr at høyere BMI henger sammen med litt lavere inntekt, men forskjellen er veldig liten.
+-   For menn er sammenhengen nesten fraværende (−0,05), mens for kvinner er den litt sterkere (−0,10).
+-   Med andre ord: BMI ser ikke ut til å påvirke inntekten særlig mye, men blant kvinner er tendensen tydeligere.
+
+## Avgrensingar og videre arbeid
+
+-   Data er observasjonelle og fanger ikke nødvendigvis opp årsakssammenhenger.
+-   Inntekt er rapportert i USD og kan være påvirket av geografi og sektor.
+
+## Konklusjon
+
+1.  Kjønn er en sterkere indikator for inntekt enn BMI i dette utvalget.
+
+2.  BMI henger svakt sammen med inntekt, spesielt blant kvinner.
+
+3.  Resultatene støtter litteraturen som peker på fordeler knyttet til fysisk framtoning i arbeidslivet (@judge2004), selv om høyde ikke er eksplisitt analysert her.
+
+## Referanser
